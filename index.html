@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Physics Labs</title>
+<title>Online Physics Laboratory</title>
 <style>
 :root{--bg:#0B1A2B;--fg:#EEF2EC;--mute:#8C9AAB;--line:rgba(255,255,255,.08);--card:rgba(255,255,255,.035);--green:#7FD4A8;--amber:#E8B23A;--red:#E87A6A;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -41,6 +41,26 @@ main{flex:1;overflow-y:auto;padding:4px 20px 20px}
 .tag{font-family:var(--mono);font-size:12px;color:var(--amber);border:1px solid rgba(232,178,58,.5);border-radius:6px;padding:3px 8px;align-self:flex-start}
 .chk{display:flex!important;align-items:center;gap:8px;font-size:13px!important;color:var(--fg)!important;font-family:inherit!important;cursor:pointer}
 .chk input{width:auto}
+#intro{flex:1;overflow-y:auto;display:flex;align-items:center;justify-content:center;padding:20px}
+body.labs #intro,body:not(.labs) .chips,body:not(.labs) main{display:none}
+.iwrap{max-width:640px;width:100%;display:flex;flex-direction:column;gap:22px}
+.iwrap .kick{font-family:var(--mono);color:var(--amber);font-size:13px;letter-spacing:2px}
+.iwrap h2{font-size:clamp(30px,6vw,46px);font-weight:800;line-height:1.15}
+.iwrap h2 span{color:var(--green)}
+.iwrap .uni{font-size:17px;line-height:1.5;color:var(--amber);margin-top:-10px;font-weight:600}
+.iwrap p{font-size:17px;line-height:1.6;color:#C9D3DD}
+.slist{display:flex;flex-direction:column;border:1px solid rgba(255,255,255,.12);border-radius:12px;overflow:hidden}
+.srow{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--card);border:0;border-bottom:1px solid rgba(255,255,255,.08);color:var(--fg);font:inherit;font-size:16px;text-align:left;cursor:pointer}
+.srow:last-child{border-bottom:0}
+.srow:hover{background:rgba(127,212,168,.08)}
+.srow .sn{flex:1;font-weight:600}
+.srow .sc{font-family:var(--mono);color:var(--green);font-size:14px}
+.srow.dim{cursor:default}.srow.dim .sc{color:var(--mute)}.srow.dim:hover{background:var(--card)}
+.mail{font-size:15px;color:var(--mute)}
+.mail a{color:var(--amber);text-decoration:none;font-family:var(--mono);display:inline-block}
+body:not(.labs) header .t{visibility:hidden}
+.enter{align-self:flex-start;font-size:18px;padding:13px 28px;border-radius:10px}
+#h1{cursor:pointer}
 .desc{color:var(--mute);font-size:13px;line-height:1.4}
 .card.off{opacity:.45}
 .card.off .soon{font-family:var(--mono);font-size:12px;color:var(--mute)}
@@ -72,6 +92,7 @@ input:focus{outline:none;border-color:var(--green)}
   <button class="btn" id="teachBtn"></button>
 </header>
 <div class="tbar" id="tbar"></div>
+<section id="intro"></section>
 <nav class="chips" id="chips"></nav>
 <main><div class="grid" id="grid"></div></main>
 <footer id="credit"></footer>
@@ -131,20 +152,23 @@ input:focus{outline:none;border-color:var(--green)}
 var REC='74f89be178af41f05b80025a7731d6acea563feaf7e7f545bac3b7ee39ef80a4';
 var DRAFT='labhub_draft_v1', LANG='labhub_lang';
 var PUB=JSON.parse(document.getElementById('labdata').textContent);
-var data=PUB, lang='en', cur=0, teach=false;
+var data=PUB, lang='en', cur=0, teach=false, inLabs=false;
+var EMAIL='rossumont_ja@rmutto.ac.th';
 try{lang=localStorage.getItem(LANG)||'en'}catch(e){}
 
 var T={
- en:{h1:'Physics Labs',sub:'Choose a set, then open a lab',open:'Open ▶',pdf:'Manual',soon:'COMING SOON',teacher:'Teacher',exit:'Exit teacher',labs:'labs',
+ en:{h1:'Online Physics Laboratory',sub:'Choose a set, then open a lab',open:'Open ▶',pdf:'Manual',soon:'COMING SOON',teacher:'Teacher',exit:'Exit teacher',labs:'labs',
   credit:'Asst.Prof.Dr. Rossumont Jaryabhand · Rajamangala University of Technology Tawan-ok, Uthenthawai Campus · No Right Reserved',
+  introKick:'PHYSICS',introT:'Online Physics <span>Laboratory</span>',introU:'Rajamangala University of Technology Tawan-ok<br>Uthenthawai Campus',introP:'Run experiments, collect data and time them yourself — just like a real lab. Works on computers, tablets and phones. Nothing to install.',enter:'Enter labs →',mail:'Need the lab sheets (PDF)? Contact',soonSet:'Coming soon',
   pw:'Teacher password',wrong:'Wrong password',ok:'OK',cancel:'Cancel',
   mode:'EDIT MODE',setEn:'Set name (EN)',setTh:'Set name (TH)',addLab:'+ Lab',addSet:'+ Set',delSet:'Delete set',dl:'⬇ Download index.html',reset:'Undo all edits',chpw:'Change password',
   nEn:'Name (EN)',nTh:'Name (TH)',url:'Lab link',pdfl:'PDF link',del:'Delete',sheetOnly:'Lab sheet only (no web lab)',sheet:'LAB SHEET ONLY',readSheet:'Read lab sheet ▶',sheetSoon:'Lab sheet coming soon',photo:'📷 Photo',dEn:'Short description (EN)',dTh:'Short description (TH)',full:'Storage full — download the file now',
   confDelSet:'Delete this whole set?',confReset:'Discard all edits and go back to the published version?',
   email:'Email',rec:'Recovery password',npw:'New password',badrec:'Email or recovery password is wrong',pwok:'Password changed — download the file to keep it',
   saved:'Downloaded. Upload it to GitHub to replace index.html',newSet:'New set',newLab:'New lab'},
- th:{h1:'แลปฟิสิกส์',sub:'เลือกชุด แล้วกดเปิดแลป',open:'เปิด ▶',pdf:'คู่มือ',soon:'เร็วๆ นี้',teacher:'ครู',exit:'ออกจากโหมดครู',labs:'แลป',
+ th:{h1:'ปฏิบัติการฟิสิกส์ออนไลน์',sub:'เลือกชุด แล้วกดเปิดแลป',open:'เปิด ▶',pdf:'คู่มือ',soon:'เร็วๆ นี้',teacher:'ครู',exit:'ออกจากโหมดครู',labs:'แลป',
   credit:'ผศ.ดร.รสสุมนต์ จารยะพันธุ์ · มหาวิทยาลัยเทคโนโลยีราชมงคลตะวันออก อุเทนถวาย · ไม่สงวนลิขสิทธิ์',
+  introKick:'PHYSICS',introT:'ปฏิบัติการฟิสิกส์<span>ออนไลน์</span>',introU:'มหาวิทยาลัยเทคโนโลยีราชมงคลตะวันออก<br>อุเทนถวาย',introP:'นักศึกษาทดลอง เก็บข้อมูล และจับเวลาได้เองเหมือนทำแลปจริง เปิดได้ทั้งคอมพิวเตอร์ แท็บเล็ต มือถือ ไม่ต้องติดตั้งโปรแกรม',enter:'เข้าสู่แลป →',mail:'ต้องการใบแลป (PDF) ติดต่อ',soonSet:'เร็วๆ นี้',
   pw:'รหัสผ่านครู',wrong:'รหัสผ่านไม่ถูกต้อง',ok:'ตกลง',cancel:'ยกเลิก',
   mode:'โหมดแก้ไข',setEn:'ชื่อชุด (อังกฤษ)',setTh:'ชื่อชุด (ไทย)',addLab:'+ แลป',addSet:'+ ชุด',delSet:'ลบชุดนี้',dl:'⬇ ดาวน์โหลด index.html',reset:'ยกเลิกการแก้ทั้งหมด',chpw:'เปลี่ยนรหัสผ่าน',
   nEn:'ชื่อ (อังกฤษ)',nTh:'ชื่อ (ไทย)',url:'ลิงก์แลป',pdfl:'ลิงก์ PDF',del:'ลบ',sheetOnly:'ใบแลปอย่างเดียว (ไม่มีแลปบนเว็บ)',sheet:'อ่านจากใบแลป',readSheet:'เปิดใบแลป ▶',sheetSoon:'ใบแลปจะตามมาเร็วๆ นี้',photo:'📷 ใส่รูป',dEn:'คำอธิบายสั้น (อังกฤษ)',dTh:'คำอธิบายสั้น (ไทย)',full:'พื้นที่เก็บเต็ม — กดดาวน์โหลดไฟล์ก่อน',
@@ -170,6 +194,11 @@ function render(){
  $('teachBtn').textContent=teach?t('exit'):t('teacher');
  $('credit').textContent=t('credit');
  if(cur>=data.sets.length)cur=Math.max(0,data.sets.length-1);
+ $('intro').innerHTML='<div class="iwrap"><div class="kick">— '+t('introKick')+'</div><h2>'+t('introT')+'</h2><div class="uni">'+t('introU')+'</div><p>'+t('introP')+'</p>'+
+  '<div class="slist">'+data.sets.map(function(s,i){var n=s.labs.filter(function(l){return l.url||l.sheet}).length;
+   return '<button class="srow'+(n?'':' dim')+'" data-i="'+i+'"><span class="sn">'+esc(nm(s))+'</span><span class="sc">'+(n?n+' '+t('labs')+' →':t('soonSet'))+'</span></button>'}).join('')+'</div>'+
+  '<button class="btn g enter" id="enterBtn">'+t('enter')+'</button>'+
+  '<div class="mail">'+t('mail')+' <a href="mailto:'+EMAIL+'">'+EMAIL+'</a></div></div>';
  $('chips').innerHTML=data.sets.map(function(s,i){
   var live=s.labs.filter(function(l){return l.url||l.sheet}).length;
   return '<button class="chip'+(i===cur?' on':'')+'" data-i="'+i+'">'+esc(nm(s))+'<span class="n">'+(teach?s.labs.length:live)+'</span></button>'}).join('');
@@ -209,6 +238,11 @@ function renderBar(){
 }
 
 // events
+$('intro').addEventListener('click',function(e){
+ var r=e.target.closest('.srow');if(r&&!r.classList.contains('dim')){cur=+r.dataset.i;inLabs=true;render();return}
+ if(e.target.id==='enterBtn'){inLabs=true;render()}
+});
+$('h1').onclick=function(){if(!teach){inLabs=false;render()}};
 $('langBtn').onclick=function(){lang=lang==='en'?'th':'en';try{localStorage.setItem(LANG,lang)}catch(e){}render()};
 $('chips').onclick=function(e){var b=e.target.closest('.chip');if(b){cur=+b.dataset.i;render()}};
 $('teachBtn').onclick=function(){
@@ -217,7 +251,7 @@ $('teachBtn').onclick=function(){
   '<div class="bt"><button class="btn" data-x>'+t('cancel')+'</button><button class="btn g" id="pwOk">'+t('ok')+'</button></div>');
  var go=async function(){
   if(await sha(normPw($('pwIn').value))===PUB.pw){
-   closeModal();teach=true;
+   closeModal();teach=true;inLabs=true;
    try{var d=localStorage.getItem(DRAFT);data=d?JSON.parse(d):clone(PUB)}catch(e){data=clone(PUB)}
    render();
   } else $('pwMsg').textContent=t('wrong');
@@ -283,7 +317,7 @@ function download(){
  var root=document.documentElement.cloneNode(true);
  root.setAttribute('lang','en');
  root.querySelector('body').className='';
- ['h1','sub','langBtn','teachBtn','tbar','chips','grid','credit','box','toast'].forEach(function(id){var el=root.querySelector('#'+id);if(el)el.innerHTML=''});
+ ['h1','sub','langBtn','teachBtn','tbar','intro','chips','grid','credit','box','toast'].forEach(function(id){var el=root.querySelector('#'+id);if(el)el.innerHTML=''});
  root.querySelector('#modal').className='modal';root.querySelector('#toast').removeAttribute('style');
  var json='\n'+JSON.stringify(out,null,0).replace(/</g,'\\u003c').replace(/\},\{/g,'},\n{')+'\n';
  root.querySelector('#labdata').textContent=json;
@@ -294,7 +328,7 @@ function download(){
 }
 
 document.body.classList.toggle('teach',false);
-var _r=render;render=function(){document.body.classList.toggle('teach',teach);_r()};
+var _r=render;render=function(){document.body.classList.toggle('teach',teach);document.body.classList.toggle('labs',inLabs);_r()};
 render();
 })();
 </script>
